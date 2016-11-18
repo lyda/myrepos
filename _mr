@@ -1,0 +1,81 @@
+#compdef mr
+
+function _mr() {
+  local curcontext="${curcontext}"
+  local state
+  local -a args subcommands
+
+  args=(
+    '-d[topmost directory that mr should work in]:directory:_files -/'
+    '--directory[topmost directory that mr should work in]:directory:_files -/'
+    '-c[use the specified mrconfig file]:mrconfig:_files'
+    '--config[use the specified mrconfig file]:mrconfig:_files'
+    '-f[force mr to act on repositories normally skipped]'
+    '--force[force mr to act on repositories normally skipped]'
+    '--force-env[force mr to run even with potentially dangerous envvars]'
+    '-v[be verbose]'
+    '--verbose[be verbose]'
+    '-m[minimise output]'
+    '--minimal[minimise output]'
+    '-q[be quiet]'
+    '--quiet[be quiet]'
+    '-k[accept untrusted SSL certificates when bootstrapping]'
+    '--insecure[accept untrusted SSL certificates when bootstrapping]'
+    '-s[expand the statistics line]'
+    '--stats[expand the statistics line]'
+    '-i[interactive mode]'
+    '--interactive[interactive mode]'
+    '-n[just operate on <number> subdirs]'
+    '--no-recurse[just operate on <number> subdirs]'
+    '-j[run <number> of jobs in parallel]'
+    '--jobs[run <number> of jobs in parallel]'
+    '-t[trust all mrconfig files]'
+    '--trust-all[trust all mrconfig files]'
+    '*:: :->subcommand_or_options'
+  )
+
+  subcommands=(
+    "checkout:checks out any repositories that are not already checked out"
+    "update:updates each repository from its configured remote repository"
+    "status:displays a status report for each repository"
+    "clean:print ignored files, untracked files and other cruft"
+    "commit:commits changes to each repository"
+    "record:records changes to the local repository"
+    "fetch:fetches from each repository's remote repository"
+    "push:pushes committed local changes to the remote repository"
+    "diff:show a diff of uncommitted changes"
+    "log:show the commit log"
+    "grep:searches for a pattern in each repository"
+    "run:runs the specified command in each repository"
+    "bootstrap:retrieves source 'src' and uses it as a .mrconfig file"
+    "list:list the repositories that mr will act on"
+    "register:register an existing repository in a mrconfig file"
+    "config:adds, modifies, removes, or prints a value from a mrconfig file"
+    "offline:advises mr that it is in offline mode"
+    "online:advices mr that it is in online mode again"
+    "remember:remember a command, to be run later when online"
+    "help:displays this help"
+  )
+
+  _arguments -C ${args} && return
+
+  if [[ $state == "subcommand_or_options" ]]; then
+    if (( CURRENT == 1 )); then
+      _describe -t subcommands 'vcsh sub-commands' subcommands
+    else
+      mrcmd="${words[1]}"
+      case $mrcmd in
+        commit|record)
+          args=('-m[message]')
+          _arguments ${args}
+          ;;
+        clean)
+          args=('-f[force]')
+          _arguments ${args}
+          ;;
+      esac
+    fi
+  fi
+}
+
+_mr "$@"
